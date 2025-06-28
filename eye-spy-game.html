@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eye Spy Game</title>
+  <style>
+    
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f7ff;
+    color: #1A1F2C;
+  }
+  .game-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  .image-container {
+    position: relative;
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: inline-block;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .hotspot {
+    position: absolute;
+    cursor: pointer;
+  }
+  .debug-mode .hotspot {
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    background-color: rgba(255, 255, 0, 0.2);
+  }
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  .timer {
+    font-family: monospace;
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+  .progress-bar {
+    height: 0.5rem;
+    background-color: #e5e5e5;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+  }
+  .progress {
+    height: 100%;
+    background-color: #9b87f5;
+    transition: width 1s linear;
+  }
+  button {
+    padding: 0.5rem 1rem;
+    background-color: #9b87f5;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  button:hover {
+    background-color: #7E69AB;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .popup-content {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    max-width: 90%;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: pop-in 0.3s ease-out forwards;
+  }
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .popup-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  .popup-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #666;
+    padding: 0;
+  }
+  .popup-image {
+    max-width: 100%;
+    max-height: 200px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 0.25rem;
+  }
+  .popup-description {
+    margin-top: 1rem;
+  }
+  .popup-footer {
+    margin-top: 1.5rem;
+    text-align: right;
+  }
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    animation: confetti-fall 5s ease-in-out forwards;
+  }
+  .found-count {
+    font-weight: bold;
+  }
+  .debug-panel {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    display: none;
+  }
+  .debug-toggle {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    cursor: pointer;
+  }
+  @keyframes pop-in {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Eye Spy Game</h1>
+    <div class="controls">
+      <div>
+        <div id="timer" class="timer">00:00</div>
+        <div class="progress-bar">
+          <div id="progress" class="progress" style="width: 100%"></div>
+        </div>
+        <div>
+          Found: <span id="found-count" class="found-count">0</span> / <span id="total-count"></span>
+        </div>
+      </div>
+      <div>
+        <button id="start-button">Start Game</button>
+        <button id="reset-button">Reset Game</button>
+        <button id="debug-toggle-button" style="display: none;">Toggle Debug</button>
+      </div>
+    </div>
+    <div id="image-container" class="image-container">
+      <img id="game-image" alt="Eye Spy Game">
+    </div>
+  </div>
+  <div id="popup" class="popup" style="display: none;">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h3 class="popup-title" id="popup-title"></h3>
+        <button class="popup-close" id="popup-close">×</button>
+      </div>
+      <div id="popup-image-container">
+        <img id="popup-image" class="popup-image">
+      </div>
+      <p id="popup-description" class="popup-description"></p>
+      <div class="popup-footer">
+        <button id="popup-ok">Got it!</button>
+      </div>
+    </div>
+  </div>
+  <div class="debug-panel" id="debug-panel">
+    Loading debug info...
+  </div>
+  <script>
+    
+  // Game data (from export)
+  const gameData = {"imageUrl":"eye-spy-game-image.png","hotspots":[{"id":"6badfaa5-cefa-4f3c-99da-20680ed366da","x":92.79346210995543,"y":24.038302790160145,"width":2.823179791976226,"height":7.13224368499257,"title":"Colin","description":"Captured!","isPercentage":true}],"timerDuration":300,"isTimerDisabled":false,"imageFileName":"eye-spy-game-image.png","originalWidth":673,"originalHeight":378.5625,"exportedImageWidth":1920,"exportedImageHeight":1080,"debugMode":false};
+  
+  // Debug: Log raw gameData.hotspots
+  console.log("Raw gameData.hotspots:", JSON.stringify(gameData.hotspots, null, 2));
+
+  // Game state
+  let foundHotspots = [];
+  let timerInterval;
+  let timeLeft = gameData.timerDuration;
+  let isGameRunning = false;
+  let debugMode = gameData.debugMode || false;  // Initialize from gameData
+  let hasGameCompleted = false;
+
+  // DOM elements
+  const imageContainer = document.getElementById("image-container");
+  const gameImage = document.getElementById("game-image");
+  const timerElement = document.getElementById("timer");
+  const progressElement = document.getElementById("progress");
+  const startButton = document.getElementById("start-button");
+  const resetButton = document.getElementById("reset-button");
+  const debugToggleButton = document.getElementById("debug-toggle-button");
+  const popup = document.getElementById("popup");
+  const popupTitle = document.getElementById("popup-title");
+  const popupImage = document.getElementById("popup-image");
+  const popupDescription = document.getElementById("popup-description");
+  const popupClose = document.getElementById("popup-close");
+  const popupOk = document.getElementById("popup-ok");
+  const foundCountElement = document.getElementById("found-count");
+  const totalCountElement = document.getElementById("total-count");
+  const popupImageContainer = document.getElementById("popup-image-container");
+  const debugPanel = document.getElementById("debug-panel");
+
+  // Initialize the game
+  function initGame() {
+    // Set image source
+    gameImage.src = gameData.imageUrl;
+    
+    // Set initial counts
+    foundCountElement.textContent = "0";
+    totalCountElement.textContent = gameData.hotspots ? gameData.hotspots.length : "0";
+
+    // Add event listeners
+    startButton.addEventListener("click", startGame);
+    resetButton.addEventListener("click", resetGame);
+    debugToggleButton.addEventListener("click", toggleDebugMode);
+    popupClose.addEventListener("click", closePopup);
+    popupOk.addEventListener("click", closePopup);
+
+    resetButton.disabled = true;
+
+    // Handle timer disabled mode
+    if (gameData.isTimerDisabled) {
+      timerElement.textContent = "Timer disabled";
+      progressElement.style.width = "100%";
+      isGameRunning = true;
+      // No Start button
+      // No Reset button initially, but show after gameComplete
+      startButton.style.display = 'none';
+      resetButton.style.display = 'none';
+    } else {
+      // Timer enabled: show Start and Reset as appropriate
+      startButton.style.display = 'inline-block';
+      resetButton.style.display = 'inline-block';
+      resetButton.disabled = true;
+    }
+
+    // Show debug button only if debug mode was enabled during export
+    if (gameData.debugMode === true) {
+      debugToggleButton.style.display = "inline-block";
+      debugPanel.style.display = debugMode ? "block" : "none";
+      if (debugMode) {
+        imageContainer.classList.add("debug-mode");
+      }
+    } else {
+      debugToggleButton.style.display = "none";
+      debugPanel.style.display = "none";
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    // Create hotspots after image loads
+    gameImage.onload = function() {
+      console.log("Image loaded with dimensions:", gameImage.naturalWidth, "x", gameImage.naturalHeight);
+      createHotspots();
+      
+      // Force a recalculation after a short delay to ensure CSS scaling is applied
+      setTimeout(createHotspots, 300);
+    };
+
+    // Fallback in case onload doesn't fire (e.g., cached image)
+    if (gameImage.complete) {
+      console.log("Image already complete");
+      createHotspots();
+      setTimeout(createHotspots, 300);
+    }
+
+    updateTimerDisplay();
+  }
+
+  // Toggle debug mode
+  function toggleDebugMode() {
+    debugMode = !debugMode;
+    if (debugMode) {
+      imageContainer.classList.add("debug-mode");
+      debugPanel.style.display = "block";
+      updateDebugInfo();
+    } else {
+      imageContainer.classList.remove("debug-mode");
+      debugPanel.style.display = "none";
+    }
+  }
+
+  // Update debug panel information
+  function updateDebugInfo() {
+    if (!debugMode) return;
+    
+    const imageWidth = gameImage.clientWidth;
+    const imageHeight = gameImage.clientHeight;
+    const originalWidth = gameData.originalWidth || gameImage.naturalWidth;
+    const originalHeight = gameData.originalHeight || gameImage.naturalHeight;
+    
+    debugPanel.innerHTML = `
+      <p>Original Canvas: ${gameData.originalWidth || "Unknown"}x${gameData.originalHeight || "Unknown"}</p>
+      <p>Exported Image: ${gameData.exportedImageWidth || "Unknown"}x${gameData.exportedImageHeight || "Unknown"}</p>
+      <p>Natural Image Size: ${gameImage.naturalWidth}x${gameImage.naturalHeight}</p>
+      <p>Current Display Size: ${imageWidth}x${imageHeight}</p>
+      <p>Scale factors: ${(imageWidth / originalWidth).toFixed(4)}x, ${(imageHeight / originalHeight).toFixed(4)}y</p>
+      <p>Hotspots: ${gameData.hotspots.length}</p>
+    `;
+  }
+
+  // Handle window resize
+  function handleResize() {
+    console.log("Window resized");
+    document.querySelectorAll(".hotspot").forEach(hotspot => {
+      hotspot.remove();
+    });
+
+    if (gameImage.complete) {
+      createHotspots();
+      if (debugMode) {
+        updateDebugInfo();
+      }
+    }
+  }
+
+  // Create hotspots on the image
+  function createHotspots() {
+    // Remove existing hotspots
+    document.querySelectorAll(".hotspot").forEach(hotspot => {
+      hotspot.remove();
+    });
+
+    const currentWidth = gameImage.clientWidth;
+    const currentHeight = gameImage.clientHeight;
+    
+    console.log(`Creating hotspots with image dimensions: ${currentWidth}x${currentHeight}`);
+
+    if (!gameData.hotspots || gameData.hotspots.length === 0) {
+      console.warn("No hotspots available to create");
+      totalCountElement.textContent = "0";
+      return;
+    }
+
+    // Create each hotspot
+    gameData.hotspots.forEach((hotspot, index) => {
+      // Debug: Log hotspot data
+      console.log(`Hotspot ${index} data:`, JSON.stringify(hotspot, null, 2));
+
+      // Skip hotspots with invalid coordinates
+      if (
+        hotspot.x == null ||
+        hotspot.y == null ||
+        hotspot.width == null ||
+        hotspot.height == null
+      ) {
+        console.error(`Invalid hotspot ${index} (missing coordinates):`, hotspot);
+        return;
+      }
+
+      console.log(`Rendering hotspot ${index}: ${hotspot.title || "Untitled"}`);
+
+      const hotspotElement = document.createElement("div");
+      hotspotElement.className = "hotspot";
+      
+      let left, top, width, height;
+      
+      // Calculate position based on whether coordinates are percentages or absolute pixels
+      if (hotspot.isPercentage) {
+        left = (hotspot.x / 100) * currentWidth;
+        top = (hotspot.y / 100) * currentHeight;
+        width = (hotspot.width / 100) * currentWidth;
+        height = (hotspot.height / 100) * currentHeight;
+        
+        console.log(
+          `Hotspot ${index}: percentage(${hotspot.x.toFixed(2)}%,${hotspot.y.toFixed(2)}%,${hotspot.width.toFixed(2)}%x${hotspot.height.toFixed(2)}%) -> pixels(${left.toFixed(1)},${top.toFixed(1)},${width.toFixed(1)}x${height.toFixed(1)})`
+        );
+      } else {
+        // Backward compatibility for older exports
+        const scaleX = currentWidth / gameData.originalWidth;
+        const scaleY = currentHeight / gameData.originalHeight;
+        left = hotspot.x * scaleX;
+        top = hotspot.y * scaleY;
+        width = hotspot.width * scaleX;
+        height = hotspot.height * scaleY;
+        
+        console.log(
+          `Hotspot ${index}: absolute(${hotspot.x},${hotspot.y},${hotspot.width}x${hotspot.height}) -> scaled(${left.toFixed(1)},${top.toFixed(1)},${width.toFixed(1)}x${height.toFixed(1)}) with scales ${scaleX.toFixed(3)}x${scaleY.toFixed(3)}`
+        );
+      }
+
+      // Set hotspot position and size
+      hotspotElement.style.left = `${left}px`;
+      hotspotElement.style.top = `${top}px`;
+      hotspotElement.style.width = `${width}px`;
+      hotspotElement.style.height = `${height}px`;
+      hotspotElement.dataset.index = String(index);
+
+      // Add click handler
+      hotspotElement.addEventListener("click", function() {
+        if (!isGameRunning && !gameData.isTimerDisabled) {
+          alert('Click "Start Game" to begin!');
+          return;
+        }
+
+        const clickedIndex = parseInt(this.dataset.index);
+        const hotspot = gameData.hotspots[clickedIndex];
+
+        if (!foundHotspots.includes(clickedIndex)) {
+          foundHotspots.push(clickedIndex);
+          updateFoundCount();
+
+          // Check if hotspot has meaningful popup content
+          const title = (hotspot.title || "").trim();
+          const hasDescription = (hotspot.description || "").trim() !== "";
+          const hasImage = !!hotspot.imageSrc;
+          const isDefaultHotspot = title === "New Hotspot" && !hasDescription && !hasImage;
+
+          if (!isDefaultHotspot) {
+            console.log(`Showing popup for hotspot ${clickedIndex}: ${title || "Untitled"}`);
+            showPopup(hotspot);
+          } else {
+            console.log(`Skipping popup for hotspot ${clickedIndex} (default "New Hotspot" with no content)`);
+          }
+
+          // Check for game completion
+          if (foundHotspots.length === gameData.hotspots.length) {
+            console.log("Game complete: All hotspots found");
+            gameComplete();
+          }
+        }
+      });
+
+      imageContainer.appendChild(hotspotElement);
+    });
+
+    // Update total count
+    totalCountElement.textContent = gameData.hotspots.length.toString();
+  }
+
+  // Start the game
+  function startGame() {
+    if (gameData.isTimerDisabled) {
+      isGameRunning = true;
+      // No Start button, hide both
+      startButton.style.display = 'none';
+      resetButton.style.display = hasGameCompleted ? 'inline-block' : 'none';
+      return;
+    }
+
+    if (!isGameRunning) {
+      isGameRunning = true;
+      startButton.textContent = "Pause Game";
+      resetButton.disabled = false;
+      startTimer();
+    } else {
+      pauseGame();
+    }
+  }
+
+  // Pause the game
+  function pauseGame() {
+    if (!gameData.isTimerDisabled) {
+      isGameRunning = false;
+      startButton.textContent = "Resume Game";
+      clearInterval(timerInterval);
+    }
+  }
+
+  // Reset the game
+  function resetGame() {
+    clearInterval(timerInterval);
+    isGameRunning = false;
+    timeLeft = gameData.timerDuration;
+    foundHotspots = [];
+    updateFoundCount();
+    updateTimerDisplay();
+    startButton.textContent = "Start Game";
+    resetButton.disabled = true;
+    hasGameCompleted = false;
+    // Hide Reset if timer is disabled
+    if (gameData.isTimerDisabled) {
+      startButton.style.display = 'none';
+      resetButton.style.display = 'none';
+    }
+  }
+
+  // Start the timer
+  function startTimer() {
+    if (gameData.isTimerDisabled) return;
+
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(function() {
+      timeLeft--;
+      updateTimerDisplay();
+
+      if (timeLeft <= 0) {
+        timeExpired();
+      }
+    }, 1000);
+  }
+
+  // Handle time expiration
+  function timeExpired() {
+    clearInterval(timerInterval);
+    isGameRunning = false;
+    alert("Time's up! You found " + foundHotspots.length + " out of " + totalCountElement.textContent + " items.");
+    resetGame();
+  }
+
+  // Update timer display
+  function updateTimerDisplay() {
+    if (gameData.isTimerDisabled) {
+      timerElement.textContent = "Timer disabled";
+      return;
+    }
+
+    const minutes = Math.floor(timeLeft / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (timeLeft % 60).toString().padStart(2, "0");
+    timerElement.textContent = `${minutes}:${seconds}`;
+
+    const progressPercent = (timeLeft / gameData.timerDuration) * 100;
+    progressElement.style.width = `${progressPercent}%`;
+
+    if (progressPercent > 50) {
+      progressElement.style.backgroundColor = "#4ade80";
+    } else if (progressPercent > 25) {
+      progressElement.style.backgroundColor = "#facc15";
+    } else {
+      progressElement.style.backgroundColor = "#ef4444";
+    }
+  }
+
+  // Update found hotspots counter
+  function updateFoundCount() {
+    foundCountElement.textContent = foundHotspots.length;
+  }
+
+  // Show popup with hotspot info
+  function showPopup(hotspot) {
+    popupTitle.textContent = hotspot.title || "Untitled";
+    popupDescription.textContent = hotspot.description || "";
+
+    if (hotspot.imageSrc) {
+      popupImage.src = hotspot.imageSrc;
+      popupImageContainer.style.display = "block";
+      popupImage.onerror = () => {
+        console.error("Failed to load popup image:", hotspot.imageSrc);
+        popupImageContainer.style.display = "none";
+      };
+    } else {
+      popupImageContainer.style.display = "none";
+    }
+
+    popup.style.display = "flex";
+  }
+
+  // Close popup
+  function closePopup() {
+    popup.style.display = "none";
+  }
+
+  // Game complete
+  function gameComplete() {
+    pauseGame();
+    createConfetti();
+    hasGameCompleted = true;
+    // If timer disabled: show Reset button only when player wins
+    if (gameData.isTimerDisabled) {
+      resetButton.style.display = 'inline-block';
+      resetButton.disabled = false;
+    }
+  }
+
+  // Create confetti animation
+  function createConfetti() {
+    const colors = ["#9b87f5", "#7E69AB", "#E5DEFF", "#FEF7CD", "#FEC6A1"];
+    for (let i = 0; i < 100; i++) {
+      const confetti = document.createElement("div");
+      confetti.className = "confetti";
+      confetti.style.left = Math.random() * 100 + "vw";
+      confetti.style.top = -5 - Math.random() * 10 + "%";
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = Math.random() * 3 + "s";
+      document.body.appendChild(confetti);
+
+      setTimeout(function() {
+        confetti.remove();
+      }, 5000);
+    }
+  }
+
+  // Display instructions
+  function displayInstructions() {
+    if (gameData.imageFileName) {
+      gameImage.onerror = function() {
+        const warningDiv = document.createElement("div");
+        warningDiv.style.padding = "1rem";
+        warningDiv.style.backgroundColor = "#ffe5e5";
+        warningDiv.style.color = "#e50000";
+        warningDiv.style.borderRadius = "0.5rem";
+        warningDiv.style.marginBottom = "1rem";
+        warningDiv.innerHTML =
+          '<strong>⚠️ Image not found!</strong><br>Make sure the image file "<strong>' +
+          gameData.imageFileName +
+          '</strong>" is in the same folder as this HTML file.';
+
+        const gameContainer = document.querySelector(".game-container");
+        gameContainer.insertBefore(warningDiv, gameContainer.firstChild);
+      };
+    }
+  }
+
+  // Initialize when DOM is loaded
+  document.addEventListener("DOMContentLoaded", function() {
+    initGame();
+    displayInstructions();
+  });
+
+  </script>
+</body>
+</html>
