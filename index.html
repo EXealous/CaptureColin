@@ -90,15 +90,47 @@
     #reset-button {
       display: none; /* Hide reset */
     }
+    /* Popup backdrop */
     .popup {
+      display: none;                 /* hidden by default */
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: none;
-      align-items: center;
+      background: rgba(0,0,0,0.5);
       justify-content: center;
+      align-items: center;
       z-index: 1000;
-    }    
+    }
+    /* Popup box */
+    .popup-content {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      max-width: 90%;
+      text-align: center;
+    }
+    .popup-content h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+    .popup-content button {
+      margin-top: 1rem;
+    }
+    /* CONFETTI STYLES */
+    .confetti {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      opacity: 0.9;
+      z-index: 2000;
+      animation: fall 5s linear forwards;
+    }
+
+    @keyframes fall {
+      0%   { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+    
   </style>
 </head>
 <body>
@@ -135,9 +167,13 @@
 
   <!-- Popup HTML -->
   <div id="popup" class="popup">
-    <!-- popup content... -->
+  <div class="popup-content">
+    <h2 id="popup-title"></h2>
+    <p  id="popup-message"></p>
+    <button id="popup-close">Close</button>
   </div>
-  <div class="debug-panel" id="debug-panel">Loading debug info...</div>
+</div>
+
 
   <script>
     // Game data (exported)
@@ -150,19 +186,30 @@
     const emailInput = document.getElementById('player-email');
     const submitPlayer = document.getElementById('submit-player');
     const startButton = document.getElementById('start-button');
+    const scoreKey = 'adiuvo_capture_colin_score';
     if (localStorage.getItem(playedKey)) {
-      form.innerHTML = '<p>You have already played. Thank you!</p>';
+    // read the stored score (may be null if someone cheated or it's the very first run)
+    const score = localStorage.getItem(scoreKey) || 'an unknown time';
+    form.innerHTML = `
+      <p>
+        You have already played.<br>
+        Your last time was <strong>${score}</strong>.<br>
+        Play again next month, thank you!
+      </p>
+    `;
     }
+
     submitPlayer.addEventListener('click', () => {
       const name = nameInput.value.trim();
       const email = emailInput.value.trim();
       if (!name || !email) {
-        alert('Please enter both name and email.');
+        alert('Please enter both name and email to play.');
         return;
       }
       localStorage.setItem(playedKey, email);
       form.style.display = 'none';
       startButton.disabled = false;
+      playerName = name;
     });
 
     // Count-up timer logic
@@ -171,16 +218,19 @@
     function startTimer() {
       if (timerInterval) return;
       timerInterval = setInterval(() => {
-        elapsedSeconds++;
-        const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2,'0');
-        const secs = String(elapsedSeconds % 60).padStart(2,'0');
-        document.getElementById('timer').textContent = `${mins}:${secs}`;
-      }, 1000);
+      elapsedSeconds++;
+      const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
+      const secs = String(elapsedSeconds % 60).padStart(2, '0');
+      document.getElementById('timer').textContent = `${mins}:${secs}`;
+    }, 1000);
     }
+    // Stop timer
     function pauseTimer() {
       clearInterval(timerInterval);
       timerInterval = null;
     }
+
+
 
     // References to DOM elements
     const imageContainer = document.getElementById('image-container');
@@ -192,23 +242,30 @@
     const foundCountElement = document.getElementById('found-count');
     const totalCountElement = document.getElementById('total-count');
     const debugPanel = document.getElementById('debug-panel');
+    // popup elements
+    const popupTitle   = document.getElementById('popup-title');
+    const popupMessage = document.getElementById('popup-message');
+    const popupClose   = document.getElementById('popup-close');
 
     let foundHotspots = [];
     let isGameRunning = false;
     let debugMode = gameData.debugMode || false;
+    let hasGameCompleted = false;
+    let playerName = '';
 
     function startGame() {
+      // show and start but never allow a pause
       imageContainer.style.display = 'inline-block';
+      startButton.disabled = true;
+      setTimeout(() => {
+        createHotspots();
+      }, 50);
+      startTimer();
       if (!isGameRunning) {
         isGameRunning = true;
-        startButton.textContent = 'Pause Game';
-        startTimer();
-      } else {
-        isGameRunning = false;
-        startButton.textContent = 'Resume Game';
-        pauseTimer();
+        startButton.textContent = 'No Resets!';
       }
-    }
+}
 
     // Remove reset functionality
     resetButton.style.display = 'none';
@@ -224,11 +281,6 @@
         imageContainer.classList.toggle('debug-mode', debugMode);
         debugPanel.style.display = debugMode ? 'block' : 'none';
       });
-      gameImage.onload = () => { createHotspots(); setTimeout(createHotspots, 300); };
-      if (gameImage.complete) {
-        createHotspots();
-        setTimeout(createHotspots, 300);
-      }
     }
 
     // Handle window resize
@@ -253,10 +305,8 @@
       hotspot.remove();
     });
 
-    const currentWidth = gameImage.clientWidth;
-    const currentHeight = gameImage.clientHeight;
-    
-    console.log(`Creating hotspots with image dimensions: ${currentWidth}x${currentHeight}`);
+    const { width: currentWidth, height: currentHeight } = gameImage.getBoundingClientRect();
+    console.log(`Image is now ${currentWidth}×${currentHeight}`);
 
     if (!gameData.hotspots || gameData.hotspots.length === 0) {
       console.warn("No hotspots available to create");
@@ -320,6 +370,7 @@
 
       // Add click handler
       hotspotElement.addEventListener("click", function() {
+        showPopup('You found Colin!', 'Well done, you captured him in ' + document.getElementById('timer').textContent);
         if (!isGameRunning && !gameData.isTimerDisabled) {
           alert('Click "Start Game" to begin!');
           return;
@@ -340,7 +391,6 @@
 
           if (!isDefaultHotspot) {
             console.log(`Showing popup for hotspot ${clickedIndex}: ${title || "Untitled"}`);
-            showPopup(hotspot);
           } else {
             console.log(`Skipping popup for hotspot ${clickedIndex} (default "New Hotspot" with no content)`);
           }
@@ -360,100 +410,12 @@
     totalCountElement.textContent = gameData.hotspots.length.toString();
   }
 
-  // Start the game
-  function startGame() {
-    if (gameData.isTimerDisabled) {
-      isGameRunning = true;
-      // No Start button, hide both
-      startButton.style.display = 'none';
-      resetButton.style.display = hasGameCompleted ? 'inline-block' : 'none';
-      return;
-    }
-
-    if (!isGameRunning) {
-      isGameRunning = true;
-      startButton.textContent = "Pause Game";
-      resetButton.disabled = false;
-      startTimer();
-    } else {
-      pauseGame();
-    }
-  }
-
-  // Pause the game
-  function pauseGame() {
-    if (!gameData.isTimerDisabled) {
-      isGameRunning = false;
-      startButton.textContent = "Resume Game";
-      clearInterval(timerInterval);
-    }
-  }
-
-  // Reset the game
-  function resetGame() {
-    clearInterval(timerInterval);
-    isGameRunning = false;
-    timeLeft = gameData.timerDuration;
-    foundHotspots = [];
-    updateFoundCount();
-    updateTimerDisplay();
-    startButton.textContent = "Start Game";
-    resetButton.disabled = true;
-    hasGameCompleted = false;
-    // Hide Reset if timer is disabled
-    if (gameData.isTimerDisabled) {
-      startButton.style.display = 'none';
-      resetButton.style.display = 'none';
-    }
-  }
-
-  // Start the timer
-  function startTimer() {
-    if (gameData.isTimerDisabled) return;
-
-    clearInterval(timerInterval);
-
-    timerInterval = setInterval(function() {
-      timeLeft--;
-      updateTimerDisplay();
-
-      if (timeLeft <= 0) {
-        timeExpired();
-      }
-    }, 1000);
-  }
-
-  // Handle time expiration
-  function timeExpired() {
-    clearInterval(timerInterval);
-    isGameRunning = false;
-    alert("Time's up! You found " + foundHotspots.length + " out of " + totalCountElement.textContent + " items.");
-    resetGame();
-  }
-
   // Update timer display
   function updateTimerDisplay() {
     if (gameData.isTimerDisabled) {
       timerElement.textContent = "Timer disabled";
       return;
-    }
-
-    const minutes = Math.floor(timeLeft / 60)
-      .toString()
-      .padStart(2, "0");
-    const seconds = (timeLeft % 60).toString().padStart(2, "0");
-    timerElement.textContent = `${minutes}:${seconds}`;
-
-    const progressPercent = (timeLeft / gameData.timerDuration) * 100;
-    progressElement.style.width = `${progressPercent}%`;
-
-    if (progressPercent > 50) {
-      progressElement.style.backgroundColor = "#4ade80";
-    } else if (progressPercent > 25) {
-      progressElement.style.backgroundColor = "#facc15";
-    } else {
-      progressElement.style.backgroundColor = "#ef4444";
-    }
+    }   
   }
 
   // Update found hotspots counter
@@ -462,39 +424,35 @@
   }
 
   // Show popup with hotspot info
-  function showPopup(hotspot) {
-    popupTitle.textContent = hotspot.title || "Untitled";
-    popupDescription.textContent = hotspot.description || "";
+  function showPopup(title, message) {
+  // Grab the elements fresh  
+  const popup       = document.getElementById('popup');
+  const popupTitle  = document.getElementById('popup-title');
+  const popupMsg    = document.getElementById('popup-message');
+  const popupClose  = document.getElementById('popup-close');
 
-    if (hotspot.imageSrc) {
-      popupImage.src = hotspot.imageSrc;
-      popupImageContainer.style.display = "block";
-      popupImage.onerror = () => {
-        console.error("Failed to load popup image:", hotspot.imageSrc);
-        popupImageContainer.style.display = "none";
-      };
-    } else {
-      popupImageContainer.style.display = "none";
-    }
+  // Populate & show  
+  popupTitle.textContent   = title;
+  popupMsg.textContent     = message;
+  popup.style.display      = 'flex';
 
-    popup.style.display = "flex";
-  }
-
-  // Close popup
-  function closePopup() {
-    popup.style.display = "none";
-  }
-
+  // Close-button handler  
+  popupClose.onclick = () => {
+    popup.style.display = 'none';
+  };
+}
   // Game complete
   function gameComplete() {
-    pauseGame();
-    createConfetti();
+    if (hasGameCompleted) return;
     hasGameCompleted = true;
-    // If timer disabled: show Reset button only when player wins
-    if (gameData.isTimerDisabled) {
-      resetButton.style.display = 'inline-block';
-      resetButton.disabled = false;
-    }
+    pauseTimer();
+    createConfetti();
+    const finalTime = document.getElementById('timer').textContent;
+    localStorage.setItem(scoreKey, finalTime);
+    showPopup(
+      '🎉 Puzzle Complete! 🎉',
+      `${playerName} completed the puzzle in ${finalTime}`
+    );
   }
 
   // Create confetti animation
