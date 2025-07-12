@@ -5,184 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capture Colin!</title>
   <style>
-    
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f7ff;
-    color: #1A1F2C;
-  }
-  .game-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-  .image-container {
-    position: relative;
-    margin: 1rem 0;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    display: inline-block;
-  }
-  img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-  }
-  .hotspot {
-    position: absolute;
-    cursor: pointer;
-  }
-  .debug-mode .hotspot {
-    border: 2px solid rgba(255, 0, 0, 0.5);
-    background-color: rgba(255, 255, 0, 0.2);
-  }
-  .controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    background-color: #ffffff;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  .timer {
-    font-family: monospace;
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-  .progress-bar {
-    height: 0.5rem;
-    background-color: #e5e5e5;
-    border-radius: 999px;
-    overflow: hidden;
-    margin: 0.5rem 0;
-  }
-  .progress {
-    height: 100%;
-    background-color: #9b87f5;
-    transition: width 1s linear;
-  }
-  button {
-    padding: 0.5rem 1rem;
-    background-color: #9b87f5;
-    color: white;
-    border: none;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  button:hover {
-    background-color: #7E69AB;
-  }
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  .popup-content {
-    background-color: white;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    max-width: 90%;
-    width: 400px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    animation: pop-in 0.3s ease-out forwards;
-  }
-  .popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  .popup-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin: 0;
-  }
-  .popup-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #666;
-    padding: 0;
-  }
-  .popup-image {
-    max-width: 100%;
-    max-height: 200px;
-    margin: 0 auto;
-    display: block;
-    border-radius: 0.25rem;
-  }
-  .popup-description {
-    margin-top: 1rem;
-  }
-  .popup-footer {
-    margin-top: 1.5rem;
-    text-align: right;
-  }
-  .confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    pointer-events: none;
-    animation: confetti-fall 5s ease-in-out forwards;
-  }
-  .found-count {
-    font-weight: bold;
-  }
-  .debug-panel {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    z-index: 1000;
-    display: none;
-  }
-  .debug-toggle {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    z-index: 1000;
-    cursor: pointer;
-  }
-  @keyframes pop-in {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  @keyframes confetti-fall {
-    0% { transform: translateY(0) rotate(0); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f7ff;
+      color: #1A1F2C;
+    }
+    .game-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .image-container {
+      position: relative;
+      margin: 1rem 0;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      display: none; /* Hidden until start */
+    }
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      -webkit-user-drag: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+    .hotspot {
+      position: absolute;
+      cursor: default; /* No pointer change */
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+    .debug-mode .hotspot {
+      border: 2px solid rgba(255, 0, 0, 0.5);
+      background-color: rgba(255, 255, 0, 0.2);
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background-color: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .timer {
+      font-family: monospace;
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    .progress-bar {
+      height: 0.5rem;
+      background-color: #e5e5e5;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    .progress {
+      height: 100%;
+      background-color: #9b87f5;
+      transition: width 1s linear;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #9b87f5;
+      color: white;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background-color: #7E69AB;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #reset-button {
+      display: none; /* Hide reset */
+    }
+    .popup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }    
   </style>
 </head>
 <body>
   <div class="game-container">
     <h1>Capture Colin! (aka Where's Wally?)</h1>
+    <!-- Player form for one-time play -->
+    <div id="player-form">
+      <input type="text" id="player-name" placeholder="Your name" required>
+      <input type="email" id="player-email" placeholder="Your email" required>
+      <button id="submit-player">Submit</button>
+    </div>
+
     <div class="controls">
       <div>
         <div id="timer" class="timer">00:00</div>
@@ -190,172 +118,120 @@
           <div id="progress" class="progress" style="width: 100%"></div>
         </div>
         <div>
-          Found: <span id="found-count" class="found-count">0</span> / <span id="total-count"></span>
+          Found: <span id="found-count">0</span> / <span id="total-count"></span>
         </div>
       </div>
       <div>
-        <button id="start-button">Start Game</button>
+        <button id="start-button" disabled>Start Game</button>
         <button id="reset-button">Reset Game</button>
         <button id="debug-toggle-button" style="display: none;">Toggle Debug</button>
       </div>
     </div>
+
     <div id="image-container" class="image-container">
       <img id="game-image" alt="Eye Spy Game" src="eye-spy-game-image.jpg">
     </div>
   </div>
-  <div id="popup" class="popup" style="display: none;">
-    <div class="popup-content">
-      <div class="popup-header">
-        <h3 class="popup-title" id="popup-title"></h3>
-        <button class="popup-close" id="popup-close">×</button>
-      </div>
-      <div id="popup-image-container">
-        <img id="popup-image" class="popup-image">
-      </div>
-      <p id="popup-description" class="popup-description"></p>
-      <div class="popup-footer">
-        <button id="popup-ok">Got it!</button>
-      </div>
-    </div>
+
+  <!-- Popup HTML -->
+  <div id="popup" class="popup">
+    <!-- popup content... -->
   </div>
-  <div class="debug-panel" id="debug-panel">
-    Loading debug info...
-  </div>
+  <div class="debug-panel" id="debug-panel">Loading debug info...</div>
+
   <script>
-    
-  // Game data (from export)
-  const gameData = {"imageUrl":"eye-spy-game-image.jpg","hotspots":[{"id":"b86f24db-b4cf-40f3-a08b-fc5de0cc1480","x":92.79346210995543,"y":24.038302790160145,"width":2.823179791976226,"height":7.13224368499257,"title":"Colin","description":"Captured!","isPercentage":true}],"timerDuration":300,"isTimerDisabled":false,"imageFileName":"eye-spy-game-image.jpg","originalWidth":673,"originalHeight":378.5625,"exportedImageWidth":1920,"exportedImageHeight":1080,"debugMode":false};
-  
-  // Debug: Log raw gameData.hotspots
-  console.log("Raw gameData.hotspots:", JSON.stringify(gameData.hotspots, null, 2));
+    // Game data (exported)
+    const gameData = {"imageUrl":"eye-spy-game-image.jpg","hotspots":[{"id":"b86f24db-b4cf-40f3-a08b-fc5de0cc1480","x":92.79346210995543,"y":24.038302790160145,"width":2.823179791976226,"height":7.13224368499257,"title":"Colin","description":"Captured!","isPercentage":true}],"timerDuration":300,"isTimerDisabled":false,"imageFileName":"eye-spy-game-image.jpg","originalWidth":673,"originalHeight":378.5625,"exportedImageWidth":1920,"exportedImageHeight":1080,"debugMode":false};
 
-  // Game state
-  let foundHotspots = [];
-  let timerInterval;
-  let timeLeft = gameData.timerDuration;
-  let isGameRunning = false;
-  let debugMode = gameData.debugMode || false;  // Initialize from gameData
-  let hasGameCompleted = false;
-
-  // DOM elements
-  const imageContainer = document.getElementById("image-container");
-  const gameImage = document.getElementById("game-image");
-  const timerElement = document.getElementById("timer");
-  const progressElement = document.getElementById("progress");
-  const startButton = document.getElementById("start-button");
-  const resetButton = document.getElementById("reset-button");
-  const debugToggleButton = document.getElementById("debug-toggle-button");
-  const popup = document.getElementById("popup");
-  const popupTitle = document.getElementById("popup-title");
-  const popupImage = document.getElementById("popup-image");
-  const popupDescription = document.getElementById("popup-description");
-  const popupClose = document.getElementById("popup-close");
-  const popupOk = document.getElementById("popup-ok");
-  const foundCountElement = document.getElementById("found-count");
-  const totalCountElement = document.getElementById("total-count");
-  const popupImageContainer = document.getElementById("popup-image-container");
-  const debugPanel = document.getElementById("debug-panel");
-
-  // Initialize the game
-  function initGame() {
-    // Set image source
-    gameImage.src = gameData.imageUrl;
-    
-    // Set initial counts
-    foundCountElement.textContent = "0";
-    totalCountElement.textContent = gameData.hotspots ? gameData.hotspots.length : "0";
-
-    // Add event listeners
-    startButton.addEventListener("click", startGame);
-    resetButton.addEventListener("click", resetGame);
-    debugToggleButton.addEventListener("click", toggleDebugMode);
-    popupClose.addEventListener("click", closePopup);
-    popupOk.addEventListener("click", closePopup);
-
-    resetButton.disabled = true;
-
-    // Handle timer disabled mode
-    if (gameData.isTimerDisabled) {
-      timerElement.textContent = "Timer disabled";
-      progressElement.style.width = "100%";
-      isGameRunning = true;
-      // No Start button
-      // No Reset button initially, but show after gameComplete
-      startButton.style.display = 'none';
-      resetButton.style.display = 'none';
-    } else {
-      // Timer enabled: show Start and Reset as appropriate
-      startButton.style.display = 'inline-block';
-      resetButton.style.display = 'inline-block';
-      resetButton.disabled = true;
+    // One-time play form logic
+    const playedKey = 'adiuvo_capture_colin_played';
+    const form = document.getElementById('player-form');
+    const nameInput = document.getElementById('player-name');
+    const emailInput = document.getElementById('player-email');
+    const submitPlayer = document.getElementById('submit-player');
+    const startButton = document.getElementById('start-button');
+    if (localStorage.getItem(playedKey)) {
+      form.innerHTML = '<p>You have already played. Thank you!</p>';
     }
-
-    // Show debug button only if debug mode was enabled during export
-    if (gameData.debugMode === true) {
-      debugToggleButton.style.display = "inline-block";
-      debugPanel.style.display = debugMode ? "block" : "none";
-      if (debugMode) {
-        imageContainer.classList.add("debug-mode");
+    submitPlayer.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      if (!name || !email) {
+        alert('Please enter both name and email.');
+        return;
       }
-    } else {
-      debugToggleButton.style.display = "none";
-      debugPanel.style.display = "none";
+      localStorage.setItem(playedKey, email);
+      form.style.display = 'none';
+      startButton.disabled = false;
+    });
+
+    // Count-up timer logic
+    let elapsedSeconds = 0;
+    let timerInterval = null;
+    function startTimer() {
+      if (timerInterval) return;
+      timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2,'0');
+        const secs = String(elapsedSeconds % 60).padStart(2,'0');
+        document.getElementById('timer').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
     }
 
-    window.addEventListener("resize", handleResize);
+    // References to DOM elements
+    const imageContainer = document.getElementById('image-container');
+    const gameImage = document.getElementById('game-image');
+    const progressElement = document.getElementById('progress');
+    const resetButton = document.getElementById('reset-button');
+    const debugToggleButton = document.getElementById('debug-toggle-button');
+    const popup = document.getElementById('popup');
+    const foundCountElement = document.getElementById('found-count');
+    const totalCountElement = document.getElementById('total-count');
+    const debugPanel = document.getElementById('debug-panel');
 
-    // Create hotspots after image loads
-    gameImage.onload = function() {
-      console.log("Image loaded with dimensions:", gameImage.naturalWidth, "x", gameImage.naturalHeight);
-      createHotspots();
-      
-      // Force a recalculation after a short delay to ensure CSS scaling is applied
-      setTimeout(createHotspots, 300);
-    };
+    let foundHotspots = [];
+    let isGameRunning = false;
+    let debugMode = gameData.debugMode || false;
 
-    // Fallback in case onload doesn't fire (e.g., cached image)
-    if (gameImage.complete) {
-      console.log("Image already complete");
-      createHotspots();
-      setTimeout(createHotspots, 300);
+    function startGame() {
+      imageContainer.style.display = 'inline-block';
+      if (!isGameRunning) {
+        isGameRunning = true;
+        startButton.textContent = 'Pause Game';
+        startTimer();
+      } else {
+        isGameRunning = false;
+        startButton.textContent = 'Resume Game';
+        pauseTimer();
+      }
     }
 
-    updateTimerDisplay();
-  }
+    // Remove reset functionality
+    resetButton.style.display = 'none';
 
-  // Toggle debug mode
-  function toggleDebugMode() {
-    debugMode = !debugMode;
-    if (debugMode) {
-      imageContainer.classList.add("debug-mode");
-      debugPanel.style.display = "block";
-      updateDebugInfo();
-    } else {
-      imageContainer.classList.remove("debug-mode");
-      debugPanel.style.display = "none";
+    // Initialize and bind
+    function initGame() {
+      gameImage.src = gameData.imageUrl;
+      foundCountElement.textContent = '0';
+      totalCountElement.textContent = gameData.hotspots.length || '0';
+      startButton.addEventListener('click', startGame);
+      debugToggleButton.addEventListener('click', () => {
+        debugMode = !debugMode;
+        imageContainer.classList.toggle('debug-mode', debugMode);
+        debugPanel.style.display = debugMode ? 'block' : 'none';
+      });
+      gameImage.onload = () => { createHotspots(); setTimeout(createHotspots, 300); };
+      if (gameImage.complete) {
+        createHotspots();
+        setTimeout(createHotspots, 300);
+      }
     }
-  }
 
-  // Update debug panel information
-  function updateDebugInfo() {
-    if (!debugMode) return;
-    
-    const imageWidth = gameImage.clientWidth;
-    const imageHeight = gameImage.clientHeight;
-    const originalWidth = gameData.originalWidth || gameImage.naturalWidth;
-    const originalHeight = gameData.originalHeight || gameImage.naturalHeight;
-    
-    debugPanel.innerHTML = `
-      <p>Original Canvas: ${gameData.originalWidth || "Unknown"}x${gameData.originalHeight || "Unknown"}</p>
-      <p>Exported Image: ${gameData.exportedImageWidth || "Unknown"}x${gameData.exportedImageHeight || "Unknown"}</p>
-      <p>Natural Image Size: ${gameImage.naturalWidth}x${gameImage.naturalHeight}</p>
-      <p>Current Display Size: ${imageWidth}x${imageHeight}</p>
-      <p>Scale factors: ${(imageWidth / originalWidth).toFixed(4)}x, ${(imageHeight / originalHeight).toFixed(4)}y</p>
-      <p>Hotspots: ${gameData.hotspots.length}</p>
-    `;
-  }
-
-  // Handle window resize
+    // Handle window resize
   function handleResize() {
     console.log("Window resized");
     document.querySelectorAll(".hotspot").forEach(hotspot => {
@@ -660,12 +536,7 @@
     }
   }
 
-  // Initialize when DOM is loaded
-  document.addEventListener("DOMContentLoaded", function() {
     initGame();
-    displayInstructions();
-  });
-
   </script>
 </body>
 </html>
