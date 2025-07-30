@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store" />
   <title>Capture Colin!</title>
   <style>
     body {
@@ -135,7 +136,7 @@
 </head>
 <body>
   <div class="game-container">
-    <h1>Capture Colin! (aka Where's Wally?)</h1>
+    <h1>Capture Colin's Clones!</h1>
     <!-- Player form for one-time play -->
     <div id="player-form">
       <input type="text" id="player-name" placeholder="Your name" required>
@@ -161,7 +162,7 @@
     </div>
 
     <div id="image-container" class="image-container">
-      <img id="game-image" alt="Eye Spy Game" src="eye-spy-game-image.jpg">
+      <img id="game-image" alt="Eye Spy Game" src="eye-spy-game-image.png">
     </div>
   </div>
 
@@ -176,11 +177,15 @@
 
 
   <script>
+    let playerEmail = '';
+
     // Game data (exported)
-    const gameData = {"imageUrl":"eye-spy-game-image.jpg","hotspots":[{"id":"b86f24db-b4cf-40f3-a08b-fc5de0cc1480","x":92.79346210995543,"y":24.038302790160145,"width":2.823179791976226,"height":7.13224368499257,"title":"Colin","description":"Captured!","isPercentage":true}],"timerDuration":300,"isTimerDisabled":false,"imageFileName":"eye-spy-game-image.jpg","originalWidth":673,"originalHeight":378.5625,"exportedImageWidth":1920,"exportedImageHeight":1080,"debugMode":false};
+    const gameData = {"imageUrl":"eye-spy-game-image.png","hotspots":[{"id":"977fa83f-10c2-4537-a59d-b4173693cbe4","x":96.06240713224369,"y":26.908324406510246,"width":3.1203566121842496,"height":6.209613324579287,"title":"New Hotspot","description":"","isPercentage":true},{"id":"2368c1ee-0682-4cdb-8291-f26f8c7bec6c","x":62.481426448737,"y":75.03282767199973,"width":2.526002971768202,"height":7.244548878675835,"title":"New Hotspot","description":"","isPercentage":true},{"id":"e3a42c64-f17f-409a-95c1-fa180a7ba6cd","x":7.206537890044576,"y":82.79484432772382,"width":2.674591381872214,"height":6.985814990151698,"title":"New Hotspot","description":"","isPercentage":true}],"timerDuration":180,"isTimerDisabled":true,"imageFileName":"eye-spy-game-image.png","originalWidth":673,"originalHeight":386.4974958263773,"exportedImageWidth":1198,"exportedImageHeight":688,"debugMode":false};
 
     // One-time play form logic
     const playedKey = 'adiuvo_capture_colin_played';
+    const LOG_URL = 'https://script.google.com/macros/s/AKfycbwOLbOri3RpXkHKvHwO7RedrYZtG5S3SqAEpTucqm6pizACcVURTicyaEIbu8AVo_gA/exec';
+    // console.warn('🧨 ACTUAL LOG_URL IN USE →', LOG_URL);
     const form = document.getElementById('player-form');
     const nameInput = document.getElementById('player-name');
     const emailInput = document.getElementById('player-email');
@@ -188,16 +193,18 @@
     const startButton = document.getElementById('start-button');
     const scoreKey = 'adiuvo_capture_colin_score';
     if (localStorage.getItem(playedKey)) {
-    // read the stored score (may be null if someone cheated or it's the very first run)
-    const score = localStorage.getItem(scoreKey) || 'an unknown time';
-    form.innerHTML = `
-      <p>
-        You have already played.<br>
-        Your last time was <strong>${score}</strong>.<br>
-        Play again next month, thank you!
-      </p>
-    `;
-    }
+  form.innerHTML = `
+    <p>
+      You have already played.<br>
+      Your last time was <strong>${localStorage.getItem(scoreKey) || 'an unknown time'}</strong>.<br>
+      Play again next month, thank you!
+    </p>
+  `;
+
+  // Do NOT restore old email unless you *intend* to
+  // playerEmail = localStorage.getItem(playedKey);
+}
+
 
     submitPlayer.addEventListener('click', () => {
       const name = nameInput.value.trim();
@@ -210,6 +217,29 @@
       form.style.display = 'none';
       startButton.disabled = false;
       playerName = name;
+      playerEmail = email;
+      // console.warn("🚨 DEBUG email override: forcing new test email");
+      // playerEmail = 'debug_' + Math.floor(Math.random() * 10000) + '@example.com';
+
+
+      // Logging entries at the start
+      const startParams = new URLSearchParams({
+        email: playerEmail,
+        event: 'start',
+        time: ''    
+      });
+      console.log('📝 Logging START for', email);
+      fetch(`${LOG_URL}?${startParams.toString()}`, {
+        method: 'GET',
+        mode:   'cors'
+      })
+        .then(res => {
+          console.log('→ start fetch status:', res.status);
+          return res.json();
+        })
+        .then(data => console.log('→ start fetch JSON:', data))
+        .catch(err => console.error('‼️ start fetch error:', err));
+
     });
 
     // Count-up timer logic
@@ -229,8 +259,6 @@
       clearInterval(timerInterval);
       timerInterval = null;
     }
-
-
 
     // References to DOM elements
     const imageContainer = document.getElementById('image-container');
@@ -266,7 +294,6 @@
         startButton.textContent = 'No Resets!';
       }
 }
-
     // Remove reset functionality
     resetButton.style.display = 'none';
 
@@ -367,43 +394,40 @@
       hotspotElement.style.width = `${width}px`;
       hotspotElement.style.height = `${height}px`;
       hotspotElement.dataset.index = String(index);
+      
+        // Add click handler
+        hotspotElement.addEventListener("click", function() {
+          // Guard: only during a running game
+          if (!isGameRunning && !gameData.isTimerDisabled) {
+            return alert('Click "Start Game" to begin!');
+          }
 
-      // Add click handler
-      hotspotElement.addEventListener("click", function() {
-        showPopup('You found Colin!', 'Well done, you captured him in ' + document.getElementById('timer').textContent);
-        if (!isGameRunning && !gameData.isTimerDisabled) {
-          alert('Click "Start Game" to begin!');
-          return;
-        }
+          const clickedIndex = parseInt(this.dataset.index, 10);
+          // Only handle *new* finds
+          if (foundHotspots.includes(clickedIndex)) return;
 
-        const clickedIndex = parseInt(this.dataset.index);
-        const hotspot = gameData.hotspots[clickedIndex];
-
-        if (!foundHotspots.includes(clickedIndex)) {
           foundHotspots.push(clickedIndex);
           updateFoundCount();
 
-          // Check if hotspot has meaningful popup content
-          const title = (hotspot.title || "").trim();
-          const hasDescription = (hotspot.description || "").trim() !== "";
-          const hasImage = !!hotspot.imageSrc;
-          const isDefaultHotspot = title === "New Hotspot" && !hasDescription && !hasImage;
+          // Build dynamic messaging
+          const found     = foundHotspots.length;
+          const total     = gameData.hotspots.length;
+          const remaining = total - found;
 
-          if (!isDefaultHotspot) {
-            console.log(`Showing popup for hotspot ${clickedIndex}: ${title || "Untitled"}`);
+          if (found < total) {
+            // first or second find
+            showPopup(
+              'Nice work!',
+              `You have found ${found} of ${total} Colin Clones. Only ${remaining} to go!`
+            );
           } else {
-            console.log(`Skipping popup for hotspot ${clickedIndex} (default "New Hotspot" with no content)`);
-          }
-
-          // Check for game completion
-          if (foundHotspots.length === gameData.hotspots.length) {
-            console.log("Game complete: All hotspots found");
+            // third find → complete the game
             gameComplete();
           }
-        }
-      });
+        });
+        imageContainer.appendChild(hotspotElement);
 
-      imageContainer.appendChild(hotspotElement);
+
     });
 
     // Update total count
@@ -453,7 +477,28 @@
       '🎉 Puzzle Complete! 🎉',
       `${playerName} completed the puzzle in ${finalTime}`
     );
+
+    // Logging that puzzle was completed
+    // const finalTime = document.getElementById('timer').textContent;
+    const completeParams = new URLSearchParams({
+      email: playerEmail,
+      event: 'complete',
+      time:  finalTime
+    });
+    
+    fetch(`${LOG_URL}?${completeParams.toString()}`, {
+      method: 'GET',
+      mode:   'cors'
+    })
+      .then(res => {
+        console.log('→ complete fetch status:', res.status);
+        return res.json();
+      })
+      .then(data => console.log('→ complete fetch JSON:', data))
+      .catch(err => console.error('‼️ complete fetch error:', err));
+    
   }
+
 
   // Create confetti animation
   function createConfetti() {
