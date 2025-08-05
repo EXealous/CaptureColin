@@ -113,6 +113,12 @@
       margin-top: 0;
       font-size: 1.5rem;
     }
+    #popup-message {
+      white-space: pre-line;
+      font-size: 1rem;
+      font-weight: normal;
+      margin-top: 0.5rem;
+    }
     .popup-content button {
       margin-top: 1rem;
     }
@@ -474,10 +480,10 @@
     const finalTime = document.getElementById('timer').textContent;
     localStorage.setItem(scoreKey, finalTime);
     showPopup(
-      '🎉 Puzzle Complete! 🎉',
-      `${playerName} completed the puzzle in ${finalTime}`
+      `🎉 Congratulations! 🎉`,
+      `${playerName} Captured Colin's Clones in ${finalTime}\n\nRemember to take a screenshot 📸`
     );
-
+    
     // Logging that puzzle was completed
     // const finalTime = document.getElementById('timer').textContent;
     const completeParams = new URLSearchParams({
