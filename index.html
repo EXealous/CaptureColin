@@ -142,7 +142,7 @@
 </head>
 <body>
   <div class="game-container">
-    <h1>Capture Colin's Clones!</h1>
+    <h1>Capture Colin's Footy Clones!</h1>
     <!-- Player form for one-time play -->
     <div id="player-form">
       <input type="text" id="player-name" placeholder="Your name" required>
@@ -157,7 +157,7 @@
           <div id="progress" class="progress" style="width: 100%"></div>
         </div>
         <div>
-          Found: <span id="found-count">0</span> / <span id="total-count"></span>
+          Found: <span id="foundTotal">0</span> / <span id="total-count"></span>
         </div>
       </div>
       <div>
@@ -168,7 +168,7 @@
     </div>
 
     <div id="image-container" class="image-container">
-      <img id="game-image" alt="Eye Spy Game" src="eye-spy-game-image.png">
+      <img id="game-image" alt="Eye Spy Game" src="capturecolinfooty.png">
     </div>
   </div>
 
@@ -186,7 +186,24 @@
     let playerEmail = '';
 
     // Game data (exported)
-    const gameData = {"imageUrl":"eye-spy-game-image.png","hotspots":[{"id":"977fa83f-10c2-4537-a59d-b4173693cbe4","x":96.06240713224369,"y":26.908324406510246,"width":3.1203566121842496,"height":6.209613324579287,"title":"New Hotspot","description":"","isPercentage":true},{"id":"2368c1ee-0682-4cdb-8291-f26f8c7bec6c","x":62.481426448737,"y":75.03282767199973,"width":2.526002971768202,"height":7.244548878675835,"title":"New Hotspot","description":"","isPercentage":true},{"id":"e3a42c64-f17f-409a-95c1-fa180a7ba6cd","x":7.206537890044576,"y":82.79484432772382,"width":2.674591381872214,"height":6.985814990151698,"title":"New Hotspot","description":"","isPercentage":true}],"timerDuration":180,"isTimerDisabled":true,"imageFileName":"eye-spy-game-image.png","originalWidth":673,"originalHeight":386.4974958263773,"exportedImageWidth":1198,"exportedImageHeight":688,"debugMode":false};
+    // const gameData = {"imageUrl":"eye-spy-game-image.png","hotspots":[{"id":"977fa83f-10c2-4537-a59d-b4173693cbe4","x":96.06240713224369,"y":26.908324406510246,"width":3.1203566121842496,"height":6.209613324579287,"title":"New Hotspot","description":"","isPercentage":true},{"id":"2368c1ee-0682-4cdb-8291-f26f8c7bec6c","x":62.481426448737,"y":75.03282767199973,"width":2.526002971768202,"height":7.244548878675835,"title":"New Hotspot","description":"","isPercentage":true},{"id":"e3a42c64-f17f-409a-95c1-fa180a7ba6cd","x":7.206537890044576,"y":82.79484432772382,"width":2.674591381872214,"height":6.985814990151698,"title":"New Hotspot","description":"","isPercentage":true}],"timerDuration":180,"isTimerDisabled":true,"imageFileName":"eye-spy-game-image.png","originalWidth":673,"originalHeight":386.4974958263773,"exportedImageWidth":1198,"exportedImageHeight":688,"debugMode":false};
+
+    //September 11 + 2 falsies
+    // Game data (from export)
+    const gameData = {"imageUrl":"capturecolinfooty.png","hotspots":[{"id":"c4a08925-d6b0-433c-8db9-73e521806ad7","x":71.2481426448737,"y":18.779924054812614,"width":4.011887072808321,"height":16.633647019976884,"title":"New Hotspot","description":"","isPercentage":true},{"id":"8cd58928-bf93-4821-bd91-ccc4c94cefd3","x":5.423476968796434,"y":29.779593858345716,"width":3.7147102526002973,"height":16.633647019976884,"title":"New Hotspot","description":"","isPercentage":true},{"id":"d3182a90-de63-41f2-898d-5123a39b8ef3","x":59.21248142644874,"y":29.779593858345716,"width":3.566121842496285,"height":17.170216278685817,"title":"New Hotspot","description":"","isPercentage":true},{"id":"7811c24d-63eb-49ee-bdde-7e75d8c7afd2","x":85.21545319465082,"y":29.243024599636787,"width":3.7147102526002973,"height":17.438500908040282,"title":"New Hotspot","description":"","isPercentage":true},{"id":"9c0dc80a-49f9-4317-acdb-6989503ff068","x":37.22139673105498,"y":41.58411754994222,"width":3.1203566121842496,"height":17.170216278685817,"title":"New Hotspot","description":"","isPercentage":true},{"id":"58b4b6ce-5648-4fa6-9fef-4ac0bfc523a2","x":22.511144130757803,"y":53.388641241538714,"width":3.863298662704309,"height":16.901931649331353,"title":"New Hotspot","description":"","isPercentage":true},{"id":"a01c82af-66f7-48c7-952f-8bb94bcce7d0","x":50.14858841010401,"y":54.19349512960211,"width":4.160475482912332,"height":16.36536239062242,"title":"New Hotspot","description":"","isPercentage":true},{"id":"800c98a7-dcbd-4234-ba46-ec02aa89e745","x":91.60475482912332,"y":64.92488030378075,"width":3.863298662704309,"height":16.36536239062242,"title":"New Hotspot","description":"","isPercentage":true},{"id":"a87da3e8-290e-4956-8e61-2640306f6299","x":4.829123328380387,"y":78.87568103021297,"width":4.903417533432393,"height":16.36536239062242,"title":"New Hotspot","description":"","isPercentage":true},{"id":"e2afb5db-546a-411b-b99e-fa7cbf3c9e29","x":41.08469539375928,"y":78.6073964008585,"width":4.3090638930163445,"height":16.36536239062242,"title":"New Hotspot","description":"","isPercentage":true},{"id":"533e0452-fdee-450e-913a-301e099db569","x":78.08320950965825,"y":77.26597325408619,"width":4.903417533432393,"height":17.975070166749216,"title":"New Hotspot","description":"","isPercentage":true},{"id":"6951389f-e3d3-4e13-9d0b-b5f6e153ed98","x":36.181277860326894,"y":18.51163942545815,"width":4.011887072808321,"height":17.70678553739475,"title":"New Hotspot","description":"","isPercentage":true},{"id":"ace5d978-68c1-4033-928c-d6a7b6cb38b0","x":63.521545319465076,"y":41.315832920587745,"width":3.7147102526002973,"height":17.438500908040282,"title":"New Hotspot","description":"","isPercentage":true}],"timerDuration":180,"isTimerDisabled":true,"imageFileName":"eye-spy-game-image.png","originalWidth":673,"originalHeight":372.73846153846154,"exportedImageWidth":1300,"exportedImageHeight":720,"debugMode":false};
+
+    // --- Decoy hotspots (don't count toward progress) ---
+    const DECOY_MAP = new Map([
+      ["6951389f-e3d3-4e13-9d0b-b5f6e153ed98", "Beam me up, Scotty! Try again!"],
+      ["ace5d978-68c1-4033-928c-d6a7b6cb38b0", "Should've gone to Specsavers, cause that's the Ref! Try again!"]
+    ]);
+
+    // Track only REAL finds (exclude decoys)
+    let foundTargets = [];
+
+    // How many real targets exist?
+    const targetsTotal = gameData.hotspots.filter(h => !DECOY_MAP.has(h.id)).length;
+
 
     // One-time play form logic
     const playedKey = 'adiuvo_capture_colin_played';
@@ -273,7 +290,7 @@
     const resetButton = document.getElementById('reset-button');
     const debugToggleButton = document.getElementById('debug-toggle-button');
     const popup = document.getElementById('popup');
-    const foundCountElement = document.getElementById('found-count');
+    const foundCountElement = document.getElementById('foundTotal');
     const totalCountElement = document.getElementById('total-count');
     const debugPanel = document.getElementById('debug-panel');
     // popup elements
@@ -281,7 +298,7 @@
     const popupMessage = document.getElementById('popup-message');
     const popupClose   = document.getElementById('popup-close');
 
-    let foundHotspots = [];
+    // let foundHotspots = [];
     let isGameRunning = false;
     let debugMode = gameData.debugMode || false;
     let hasGameCompleted = false;
@@ -306,8 +323,8 @@
     // Initialize and bind
     function initGame() {
       gameImage.src = gameData.imageUrl;
-      foundCountElement.textContent = '0';
-      totalCountElement.textContent = gameData.hotspots.length || '0';
+      foundCountElement.textContent = '0'
+      totalCountElement.textContent = String(targetsTotal);
       startButton.addEventListener('click', startGame);
       debugToggleButton.addEventListener('click', () => {
         debugMode = !debugMode;
@@ -409,22 +426,30 @@
           }
 
           const clickedIndex = parseInt(this.dataset.index, 10);
-          // Only handle *new* finds
-          if (foundHotspots.includes(clickedIndex)) return;
+          const hotspotData = gameData.hotspots[clickedIndex];
 
-          foundHotspots.push(clickedIndex);
+          // Decoys?
+          if (DECOY_MAP.has(hotspotData.id)){
+            showPopup('Decoy!', DECOY_MAP.get(hotspotData.id));
+            return;
+          }
+
+          // Only handle *new* finds
+          if (foundTargets.includes(clickedIndex)) return;
+
+          foundTargets.push(clickedIndex);
           updateFoundCount();
 
           // Build dynamic messaging
-          const found     = foundHotspots.length;
-          const total     = gameData.hotspots.length;
+          const found     = foundTargets.length;
+          const total     = targetsTotal;
           const remaining = total - found;
 
           if (found < total) {
             // first or second find
             showPopup(
               'Nice work!',
-              `You have found ${found} of ${total} Colin Clones. Only ${remaining} to go!`
+              `You have found ${found} of ${total} Colin Footy Clones. Only ${remaining} to go!`
             );
           } else {
             // third find → complete the game
@@ -437,7 +462,7 @@
     });
 
     // Update total count
-    totalCountElement.textContent = gameData.hotspots.length.toString();
+    totalCountElement.textContent = String(targetsTotal);
   }
 
   // Update timer display
@@ -450,7 +475,7 @@
 
   // Update found hotspots counter
   function updateFoundCount() {
-    foundCountElement.textContent = foundHotspots.length;
+    foundCountElement.textContent = foundTargets.length;
   }
 
   // Show popup with hotspot info

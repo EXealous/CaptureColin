@@ -25,6 +25,10 @@ Users accessing the puzzle site, attempt to locate and click on Colin to win.
 - If a user does try to reload the game and has already played, it will provide their previous time, and will not allow them to play again.
 - Added reminder message in popup to take a screenshot. 
 
+## Third Itertation (September)
+- FPL Footy version, with 11 players and 2 decoys added.
+- Updated code to allow for the decoy not to count towards the total.
+
 ## Future Tweaks
 - Add a button to take a screenshot (and download?)
 
