@@ -207,6 +207,16 @@
 
     // One-time play form logic
     // --- Campaign/version ID ---
+
+    // Build per-person keys for this campaign
+    function playedKeyFor(email) {
+      return `${STORAGE_PREFIX}_played_${String(email).toLowerCase()}`;
+    }
+    function scoreKeyFor(email) {
+      return `${STORAGE_PREFIX}_score_${String(email).toLowerCase()}`;
+    }
+
+
     // Bump CAMPAIGN_ID for each new round/image
     const CAMPAIGN_ID = '2025-09';  // e.g. use year-month or image version
     const STORAGE_PREFIX = `adiuvo_capture_colin_${CAMPAIGN_ID}`;
@@ -221,7 +231,7 @@
     const submitPlayer = document.getElementById('submit-player');
     const startButton = document.getElementById('start-button');
 
-    if (localStorage.getItem(playedKey)) {
+  /*  if (localStorage.getItem(playedKey)) {
   form.innerHTML = `
     <p>
       You have already played.<br>
@@ -229,46 +239,45 @@
       Play again next month, thank you!
     </p>
   `;
-
+  */
   // Do NOT restore old email unless you *intend* to
   // playerEmail = localStorage.getItem(playedKey);
-}
+
 
 
     submitPlayer.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      const email = emailInput.value.trim();
+      const name  = nameInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
       if (!name || !email) {
         alert('Please enter both name and email to play.');
         return;
       }
-      localStorage.setItem(playedKey, email);
+
+      playerName  = name;
+      playerEmail = email;
+
+      // Per-person gate for this campaign
+      if (localStorage.getItem(playedKeyFor(playerEmail))) {
+        // Show per-person last time if present
+        const lastTime = localStorage.getItem(scoreKeyFor(playerEmail)) || 'an unknown time';
+        form.innerHTML = `
+          <p>
+            You have already played.<br>
+            Your last time was <strong>${lastTime}</strong>.<br>
+            Play again next month, thank you!
+          </p>
+        `;
+        return;
+      }
+
+      // Allow play for this person
       form.style.display = 'none';
       startButton.disabled = false;
-      playerName = name;
-      playerEmail = email;
-      // console.warn("🚨 DEBUG email override: forcing new test email");
-      // playerEmail = 'debug_' + Math.floor(Math.random() * 10000) + '@example.com';
 
-
-      // Logging entries at the start
-      const startParams = new URLSearchParams({
-        email: playerEmail,
-        event: 'start',
-        time: ''    
-      });
-      console.log('📝 Logging START for', email);
-      fetch(`${LOG_URL}?${startParams.toString()}`, {
-        method: 'GET',
-        mode:   'cors'
-      })
-        .then(res => {
-          console.log('→ start fetch status:', res.status);
-          return res.json();
-        })
-        .then(data => console.log('→ start fetch JSON:', data))
-        .catch(err => console.error('‼️ start fetch error:', err));
-
+      // Log start (unchanged)
+      const startParams = new URLSearchParams({ email: playerEmail, event: 'start', time: '' });
+      fetch(`${LOG_URL}?${startParams.toString()}`, { method: 'GET', mode: 'cors' })
+        .then(res => res.json()).catch(console.error);
     });
 
     // Count-up timer logic
@@ -510,6 +519,8 @@
     createConfetti();
     const finalTime = document.getElementById('timer').textContent;
     localStorage.setItem(scoreKey, finalTime);
+    localStorage.setItem(scoreKeyFor(playerEmail), finalTime);   // personal score this month
+    localStorage.setItem(playedKeyFor(playerEmail), '1');        // mark this email as played
     showPopup(
       `🎉 Congratulations! 🎉`,
       `${playerName} Captured Colin's Clones in ${finalTime}\n\nRemember to take a screenshot 📸`
