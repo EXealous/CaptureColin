@@ -270,6 +270,8 @@
         return;
       }
 
+      localStorage.setItem(playedKeyFor(playerEmail), '1');
+
       // Allow play for this person
       form.style.display = 'none';
       startButton.disabled = false;
