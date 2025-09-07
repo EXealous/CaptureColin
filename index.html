@@ -206,7 +206,13 @@
 
 
     // One-time play form logic
-    const playedKey = 'adiuvo_capture_colin_played';
+    // --- Campaign/version ID ---
+    // Bump CAMPAIGN_ID for each new round/image
+    const CAMPAIGN_ID = '2025-09';  // e.g. use year-month or image version
+    const STORAGE_PREFIX = `adiuvo_capture_colin_${CAMPAIGN_ID}`;
+    const playedKey = `${STORAGE_PREFIX}_played`;
+    const scoreKey  = `${STORAGE_PREFIX}_score`;
+
     const LOG_URL = 'https://script.google.com/macros/s/AKfycbwOLbOri3RpXkHKvHwO7RedrYZtG5S3SqAEpTucqm6pizACcVURTicyaEIbu8AVo_gA/exec';
     // console.warn('🧨 ACTUAL LOG_URL IN USE →', LOG_URL);
     const form = document.getElementById('player-form');
@@ -214,7 +220,7 @@
     const emailInput = document.getElementById('player-email');
     const submitPlayer = document.getElementById('submit-player');
     const startButton = document.getElementById('start-button');
-    const scoreKey = 'adiuvo_capture_colin_score';
+
     if (localStorage.getItem(playedKey)) {
   form.innerHTML = `
     <p>
